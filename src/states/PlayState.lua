@@ -30,7 +30,7 @@ function PlayState:enter(params)
     self.level = params.level
 
     self.recoverPoints = 5000
-    self.growPaddlePoints = 100
+    self.growPaddlePoints = 500
 
     -- give ball random starting velocity
     self.ball.dx = math.random(-200, 200)
@@ -91,10 +91,11 @@ function PlayState:update(dt)
             -- Increase paddle size if point threshold is met
             if self.score > self.growPaddlePoints then
                 if self.paddle.size < MAX_PADDLE_SIZE then
-                    self.paddle.size = self.paddle.size + 1
+                    self.paddle:setSize(self.paddle.size + 1)
                 end
                 self.growPaddlePoints = math.min(100000, self.growPaddlePoints * 2)
             end
+
             -- if we have enough points, recover a point of health
             if self.score > self.recoverPoints then
                 -- can't go above 3 health
@@ -178,7 +179,7 @@ function PlayState:update(dt)
         gSounds['hurt']:play()
         -- Decrease paddle size by 1 stage if possible
         if self.paddle.size > MIN_PADDLE_SIZE then
-            self.paddle.size = self.paddle.size - 1
+            self.paddle:setSize(self.paddle.size - 1)
         end
 
         if self.health == 0 then

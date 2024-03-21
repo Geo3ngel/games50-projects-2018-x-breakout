@@ -24,3 +24,4 @@ PADDLE_SPEED = 200
 -- paddle size constraints
 MAX_PADDLE_SIZE = 4
 MIN_PADDLE_SIZE = 1
+PADDLE_BLOCK_SIZE = 32
