@@ -125,3 +125,9 @@ function GenerateQuadsBalls(atlas)
 
     return quads
 end
+
+-- Since the powerups are uniform in size similar to the bricks, 
+-- I decided to use the same technique. 
+function GeneratePowerups(atlas)
+    return table.slice(GenerateQuads(atlas, 16, 16), 144, 154)
+end

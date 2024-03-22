@@ -50,7 +50,9 @@ paletteColors = {
     }
 }
 
-function Brick:init(x, y)
+function Brick:init(x, y, powerup)
+    -- Predetermine if a brick contains a powerup or not
+    self.powerup = powerup
     -- used for coloring and score calculation
     self.tier = 0
     self.color = 1
@@ -126,6 +128,10 @@ function Brick:hit()
     if not self.inPlay then
         gSounds['brick-hit-1']:stop()
         gSounds['brick-hit-1']:play()
+        -- Drop a powerup if one is present
+        if self.powerup ~= nil then
+            return self.powerup
+        end
     end
 end
 

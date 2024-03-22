@@ -83,16 +83,18 @@ function LevelMaker.createMap(level)
                 -- flip the flag to true on an iteration we don't use it
                 skipFlag = not skipFlag
             end
-
-            b = Brick(
-                -- x-coordinate
-                (x-1)                   -- decrement x by 1 because tables are 1-indexed, coords are 0
+            local xCoord = (x-1)                   -- decrement x by 1 because tables are 1-indexed, coords are 0
                 * 32                    -- multiply by 32, the brick width
                 + 8                     -- the screen should have 8 pixels of padding; we can fit 13 cols + 16 pixels total
-                + (13 - numCols) * 16,  -- left-side padding for when there are fewer than 13 columns
-                
-                -- y-coordinate
-                y * 16                  -- just use y * 16, since we need top padding anyway
+                + (13 - numCols) * 16  -- left-side padding for when there are fewer than 13 columns
+            local yCoord = y * 16
+
+            b = Brick(
+                xCoord,
+                yCoord,
+                -- TODO: Make this a random chance of occuring!
+                -- Maybe even make it split this between a certain % of bricks?
+                Powerup(xCoord, yCoord, 7, gStateMachine['play'], "addBalls")--nil -- powerup
             )
 
             -- if we're alternating, figure out which color/tier we're on
@@ -117,7 +119,7 @@ function LevelMaker.createMap(level)
             -- Lua's version of the 'continue' statement
             ::continue::
         end
-    end 
+    end
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then

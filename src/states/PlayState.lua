@@ -35,6 +35,13 @@ function PlayState:enter(params)
     -- give ball random starting velocity
     self.ball.dx = math.random(-200, 200)
     self.ball.dy = math.random(-50, -60)
+
+    -- upgrades
+    self.upgrades = {}
+    self.bonusBalls = {}
+    self.keyCharge = 0
+    -- ! For testing sprite sheet!
+    self.powerup = Powerup(50,50,0,nil,nil)
 end
 
 function PlayState:update(dt)
@@ -54,6 +61,14 @@ function PlayState:update(dt)
     -- update positions based on velocity
     self.paddle:update(dt)
     self.ball:update(dt)
+    
+    -- Update all upgrades
+    for _, ball in ipairs(self.bonusBalls) do --! TO IMPLEMENT!
+        ball:update(dt)
+    end
+    for _, powerup in ipairs(self.upgrades) do
+        powerup:update(dt)
+    end
 
     if self.ball:collides(self.paddle) then
         -- raise ball above paddle in case it goes below it, then reverse dy
@@ -76,6 +91,46 @@ function PlayState:update(dt)
         gSounds['paddle-hit']:play()
     end
 
+    -- Handle collision for power up items & bonus balls
+    for _, ball in ipairs(self.bonusBalls) do
+        if ball:collides(self.paddle) then
+            -- raise ball above paddle in case it goes below it, then reverse dy
+            ball.y = self.paddle.y - 8
+            ball.dy = -ball.dy
+
+            --
+            -- tweak angle of bounce based on where it hits the paddle
+            --
+
+            -- if we hit the paddle on its left side while moving left...
+            if ball.x < self.paddle.x + (self.paddle.width / 2) and self.paddle.dx < 0 then
+                ball.dx = -50 + -(8 * (self.paddle.x + self.paddle.width / 2 - ball.x))
+            
+            -- else if we hit the paddle on its right side while moving right...
+            elseif ball.x > self.paddle.x + (self.paddle.width / 2) and self.paddle.dx > 0 then
+                ball.dx = 50 + (8 * math.abs(self.paddle.x + self.paddle.width / 2 - ball.x))
+            end
+
+            local hitSound = gSounds['paddle-hit']
+            local currentPitch = hitSound:getPitch()
+            hitSound:setPitch(currentPitch + 0.2)
+            hitSound:play()
+            hitSound:setPitch(currentPitch)
+        end
+    end
+
+    for _, powerup in ipairs(self.upgrades) do
+        if powerup:collides(self.paddle) then
+            -- Trigger powerup effect!
+            powerup:trigger()
+        end
+        -- Check if it went off screen
+        if powerup.y > VIRTUAL_HEIGHT then
+            powerup:destroy()
+        end
+    end
+
+    -- ! TODO: Add support for bonus balls!
     -- detect collision across all bricks with the ball
     for k, brick in pairs(self.bricks) do
 
@@ -86,7 +141,11 @@ function PlayState:update(dt)
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
             -- trigger the brick's hit function, which removes it from play
-            brick:hit()
+            local powerup = brick:hit()
+            -- Check if the brick dropped a powerup by chance
+            if powerup ~= nil then
+                self.upgrades[#self.upgrades+1] = powerup
+            end
 
             -- Increase paddle size if point threshold is met
             if self.score > self.growPaddlePoints then
@@ -232,6 +291,16 @@ function PlayState:render()
         love.graphics.setFont(gFonts['large'])
         love.graphics.printf("PAUSED", 0, VIRTUAL_HEIGHT / 2 - 16, VIRTUAL_WIDTH, 'center')
     end
+end
+
+function PlayState:addBalls()
+    local skin = math.random(7)
+    local ball1 = Ball()
+    local ball2 = Ball()
+    ball1.skin = skin
+    ball2.skin = skin
+    self.bonusBalls[#self.bonusBalls + 1] = ball1
+    self.bonusBalls[#self.bonusBalls + 1] = ball2
 end
 
 function PlayState:checkVictory()

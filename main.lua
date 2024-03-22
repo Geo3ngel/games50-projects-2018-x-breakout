@@ -1,3 +1,4 @@
+global_debug = ""
 --[[
     GD50
     Breakout Remake
@@ -66,7 +67,8 @@ function love.load()
         ['paddles'] = GenerateQuadsPaddles(gTextures['main']),
         ['balls'] = GenerateQuadsBalls(gTextures['main']),
         ['bricks'] = GenerateQuadsBricks(gTextures['main']),
-        ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9)
+        ['hearts'] = GenerateQuads(gTextures['hearts'], 10, 9),
+        ['powerups'] = GeneratePowerups(gTextures['main'])
     }
     
     -- initialize our virtual resolution, which will be rendered within our
@@ -291,6 +293,7 @@ function displayFPS()
     love.graphics.setFont(gFonts['small'])
     love.graphics.setColor(0, 1, 0, 1)
     love.graphics.print('FPS: ' .. tostring(love.timer.getFPS()), 5, 5)
+    love.graphics.print('FPS: ' .. tostring(global_debug), 5, 10)
 end
 
 --[[
